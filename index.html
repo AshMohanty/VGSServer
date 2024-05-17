@@ -6,47 +6,55 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
             text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        #status {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        #update {
-            font-size: 18px;
-            color: green;
+        .status {
+            font-size: 1.5em;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="status">Checking server status...</div>
-    <div id="update"></div>
-
+    <div class="container">
+        <div class="status">Checking server status...</div>
+        <div class="events"></div>
+    </div>
     <script>
         async function checkStatus() {
             try {
                 const response = await fetch('/status');
                 const statusText = await response.text();
-                document.getElementById('status').innerText = statusText;
+                document.querySelector('.status').textContent = statusText;
             } catch (error) {
-                document.getElementById('status').innerText = 'Error checking server status.';
+                document.querySelector('.status').textContent = 'Error checking server status';
             }
         }
 
-        async function listenForUpdates() {
+        function listenForEvents() {
             const eventSource = new EventSource('/events');
             eventSource.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                document.getElementById('update').innerText = 'Received payment request: ' + JSON.stringify(data);
-            };
-            eventSource.onerror = function() {
-                document.getElementById('update').innerText = 'Error receiving updates.';
+                const eventsDiv = document.querySelector('.events');
+                const eventData = JSON.parse(event.data);
+                const eventElement = document.createElement('div');
+                eventElement.textContent = `Received payment data: ${JSON.stringify(eventData)}`;
+                eventsDiv.appendChild(eventElement);
             };
         }
 
         checkStatus();
-        listenForUpdates();
+        listenForEvents();
     </script>
 </body>
 </html>
