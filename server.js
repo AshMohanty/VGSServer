@@ -43,7 +43,13 @@ async function postStripePayment(creditCardInfo) {
         headers: {
             'authorization': `Basic ${base64Auth}`,
         },
+        // Ignore SSL certificate validation errors
+        // This should be done with caution and only in trusted environments
+        // Do not use in production without thorough security review
+        // (e.g., disable SSL pinning or use a trusted proxy)
+        // Note: This is only a temporary solution and not recommended for production use
         httpsAgent: agent,
+        rejectUnauthorized: false
     });
 
     let pm_response = await instance.post('/v1/payment_methods', qs.stringify({
