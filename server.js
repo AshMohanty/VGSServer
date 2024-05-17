@@ -29,6 +29,7 @@ function getProxyAgent() {
             port: 8443,
             proxyAuth: `${VGS_USERNAME}:${VGS_PASSWORD}`
         },
+        rejectUnauthorized: false  // Add this line to disable SSL certificate validation
     });
 }
 
@@ -43,33 +44,34 @@ async function postStripePayment(creditCardInfo) {
         headers: {
             'authorization': `Basic ${base64Auth}`,
         },
-        // Ignore SSL certificate validation errors
-        // This should be done with caution and only in trusted environments
-        // Do not use in production without thorough security review
-        // (e.g., disable SSL pinning or use a trusted proxy)
-        // Note: This is only a temporary solution and not recommended for production use
         httpsAgent: agent,
-        rejectUnauthorized: false
+        validateStatus: function (status) {
+            return status >= 200 && status < 300; // Resolve only if the status code is less than 300
+        }
     });
 
-    let pm_response = await instance.post('/v1/payment_methods', qs.stringify({
-        type: 'card',
-        card: {
-            number: creditCardInfo['card_number'],
-            cvc: creditCardInfo['card_cvc'],
-            exp_month: expiry[0].trim(),
-            exp_year: expiry[1].trim()
-        }
-    }));
+    try {
+        let pm_response = await instance.post('/v1/payment_methods', qs.stringify({
+            type: 'card',
+            card: {
+                number: creditCardInfo['card_number'],
+                cvc: creditCardInfo['card_cvc'],
+                exp_month: expiry[0].trim(),
+                exp_year: expiry[1].trim()
+            }
+        }));
 
-    let pi_response = await instance.post('/v1/payment_intents', qs.stringify({
-        amount: 1000, // Amount in cents
-        currency: 'usd',
-        payment_method: pm_response.data.id,
-        confirm: true
-    }));
+        let pi_response = await instance.post('/v1/payment_intents', qs.stringify({
+            amount: 1000, // Amount in cents
+            currency: 'usd',
+            payment_method: pm_response.data.id,
+            confirm: true
+        }));
 
-    return pi_response.data;
+        return pi_response.data;
+    } catch (error) {
+        throw new Error(error.response ? error.response.data : error.message);
+    }
 }
 
 app.post('/process-payment', async (req, res) => {
