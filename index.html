@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            text-align: center;
+        }
+        #status {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #update {
+            font-size: 18px;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">Checking server status...</div>
+    <div id="update"></div>
+
+    <script>
+        async function checkStatus() {
+            try {
+                const response = await fetch('/status');
+                const statusText = await response.text();
+                document.getElementById('status').innerText = statusText;
+            } catch (error) {
+                document.getElementById('status').innerText = 'Error checking server status.';
+            }
+        }
+
+        async function listenForUpdates() {
+            const eventSource = new EventSource('/events');
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                document.getElementById('update').innerText = 'Received payment request: ' + JSON.stringify(data);
+            };
+            eventSource.onerror = function() {
+                document.getElementById('update').innerText = 'Error receiving updates.';
+            };
+        }
+
+        checkStatus();
+        listenForUpdates();
+    </script>
+</body>
+</html>
