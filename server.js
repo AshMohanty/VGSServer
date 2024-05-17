@@ -39,7 +39,7 @@ async function postStripePayment(creditCardInfo) {
     let base64Auth = Buffer.from(`${STRIPE_KEY}:`).toString('base64');
 
     const instance = axios.create({
-        baseURL: 'https://api.stripe.com',
+        baseURL: 'api.stripe.com',
         headers: {
             'authorization': `Basic ${base64Auth}`,
         },
