@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
@@ -16,11 +17,12 @@ const {
     VGS_VAULT_ID,
     VGS_USERNAME,
     VGS_PASSWORD,
-    STRIPE_KEY
+    STRIPE_KEY,
+    OUTBOUND_ROUTE_ID
 } = process.env;
 
 function getProxyAgent() {
-    const vgs_outbound_url = `${VGS_VAULT_ID}.sandbox.verygoodproxy.com`;
+    const vgs_outbound_url = `${OUTBOUND_ROUTE_ID}.${VGS_VAULT_ID}.sandbox.verygoodproxy.com`;
     console.log(`Sending request through outbound Route: ${vgs_outbound_url}`);
     return tunnel.httpsOverHttps({
         proxy: {
