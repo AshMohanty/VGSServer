@@ -96,7 +96,13 @@ document.getElementById('vgs-collect-form').addEventListener('submit', (e) => {
       displayPaymentCompleteMessage();
     } else {
       // Payment failed
-      throw new Error(data.error);
+      let errorMessage = 'Payment failed. Please try again later.';
+      if (data.error === 'invalid_card_number') {
+        errorMessage = 'Invalid credit card number. Please check and try again.';
+      } else if (data.error === 'authentication_failed') {
+        errorMessage = 'Stripe authentication failed. Please try again later.';
+      }
+      throw new Error(errorMessage);
     }
   })
   .catch(error => {
