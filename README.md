@@ -4,7 +4,6 @@
 
 In this document we’ll go over how to deploy this [website](https://vgs-server.vercel.app/) using Vercel, Node.JS, VGS and Stripe. 
 
-![Screen Shot 2024-05-21 at 11.54.08 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.54.08_AM.png)
 
 **This website:**
 
@@ -35,7 +34,6 @@ There is a summary checklist provided at the end of this document of steps you s
 
 # Detailed Guide:
 
-![Screen Shot 2024-05-20 at 8.20.20 PM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-20_at_8.20.20_PM.png)
 
 1. **VGS Configuration**:  This document will go over how to configure Inbound and Outbound Routes. We’ll cover how to securely forward the tokenized card data from the front-end to our server and how to then process the payment information using Stripe via VGS outbound route.
 2. **Front End**: We'll go over how to set up a simple website to collect card details and use VGS Collect.js to tokenize this sensitive data before sending it to the server.
@@ -48,7 +46,6 @@ We’ll go over how to build a simple Inbound Route and a simple outbound Route 
 
 **You can also import the YAML’s provided here into VGS to get started quickly without following the steps outlined below.** 
 
-![Screen Shot 2024-05-21 at 11.13.03 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.13.03_AM.png)
 
 For the Inbound Route change the destination override endpoint to point to your server; we’ll generate this address later in the guide. 
 
@@ -62,11 +59,9 @@ The difference between our outbound proxy and our inbound is that the inbound is
 
 **Route Creation:**
 
-![Screen Shot 2024-05-21 at 10.55.43 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_10.55.43_AM.png)
 
 After logging in, you can create a Route by navigating to the Vault → Routes page.
 
-**[Inbound Route](https://www.verygoodsecurity.com/docs/guides/inbound-connection/):**  
 
 An inbound route in VGS is designed to intercept and secure sensitive data before it reaches your server. Inbound Routes are highly configurable but for this demo we will just be creating an Inbound Route that secures a Credit Card Number and it’s CVV. 
 
@@ -75,13 +70,8 @@ An inbound route in VGS is designed to intercept and secure sensitive data befor
 - **Host**: Enter the host that will be sending the data (e.g., your Vercel app's domain). Or initially you can use echo.apps.verygood.systems
 - **Filters**: Configure any filters as needed. In this case we are just securing Credit Card and CVV information.
 
-![Screen Shot 2024-05-21 at 11.01.23 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.01.23_AM.png)
 
 In these examples we’re redacting Credit Card Info and CVV to be secure. 
-
-![Screen Shot 2024-05-21 at 11.18.23 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.18.23_AM.png)
-
-![Screen Shot 2024-05-21 at 11.18.03 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.18.03_AM.png)
 
 More context on Filters can be found [here](https://www.verygoodsecurity.com/docs/terminology/filters/). 
 
@@ -94,13 +84,6 @@ The outbound/forward proxy directs traffic between your server (outbound) traffi
 - **Host**: Enter the host that will be receiving the  tokenized payment from the server. In this case it’s API.Stripe.com. There are many popular payment vendors with pre-configured routes found [here](https://support.verygoodsecurity.com/s/article/How-to-enable-and-test-integration-with-Stripe).
 - **Filters**: Configure any filters as needed similar to the inbound route. In this case we are revealing the hidden credit card information to then be processed by Stripe.
 
-![Screen Shot 2024-05-21 at 11.21.57 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.21.57_AM.png)
-
-**Revealing Credit Card Information:** 
-
-![Screen Shot 2024-05-21 at 11.34.36 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.34.36_AM.png)
-
-![Screen Shot 2024-05-21 at 11.34.27 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.34.27_AM.png)
 
 We have now set-up our initial routes! There are many configurations and ways to test Routes but for this quick set-up we can now move onto the deployment. 
 
@@ -108,7 +91,6 @@ The YAML’s to upload with all of this context can be found here as well.
 
 You are able to see the logs from each route page to monitor usage and status of your routes. 
 
-![Screen Shot 2024-05-21 at 12.46.18 PM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_12.46.18_PM.png)
 
 ## Deploying our Template:
 
@@ -140,15 +122,11 @@ You can now take this repository and move it into your Git/GitLab/BitBucket.
 1. Browse your repositories and select the **`VGSServer`** repository.
 2. Click on the **"Import"** button next to the repository.
     
-    ![Screen Shot 2024-05-21 at 10.40.24 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_10.40.24_AM.png)
-    
 
 ### **5. Configure Project**
 
 1. Ensure the **Root Directory** is set to the folder where your **`server.js`** is located (usually the root directory).
-
-![Screen Shot 2024-05-21 at 10.40.37 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_10.40.37_AM.png)
-
+2. 
 ### **6. Set Environment Variables**
 
 1. Scroll down to the **"Environment Variables"** section.
@@ -182,15 +160,10 @@ NODE_EXTRA_CA_CERTS = './cert.pem'
 2. Navigate to your inbound route configuration.
 3. Set the **Upstream Host** to the URL provided by Vercel for your deployed project (will be the main domain name).
 
-![Screen Shot 2024-05-21 at 9.26.36 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_9.26.36_AM.png)
 
 **Monitoring:** You are able to monitor your deployment on Vercel. 
 
-![Screen Shot 2024-05-21 at 12.03.48 PM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_12.03.48_PM.png)
-
 **Logs: You can debug your server based from the logs page and monitor both your outbound and inbound proxies.** 
-
-![Screen Shot 2024-05-21 at 12.04.38 PM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_12.04.38_PM.png)
 
 **Status:** You can always access the status page of your back-end server by going to your .app page followed by status. I.E: [https://vgs-server.vercel.app/status](https://vgs-server.vercel.app/status)
 
@@ -362,8 +335,6 @@ Once we have received a response from Stripe, we pass it back to our Form.JS to 
     
 2. Set Inbound and Outbound Route 
     1. Change the Inbound Route Host to match your Vercel Server Name. 
-    
-    ![Screen Shot 2024-05-21 at 11.01.23 AM.png](VGS%20Deployment%2068c3be10f47047399c790df8e9d0587c/Screen_Shot_2024-05-21_at_11.01.23_AM%201.png)
     
 3. Ensure that you are using the certificate provided and a HTTPS Proxy in order to have the outbound route found in Server.JS work with Stripe 
 
