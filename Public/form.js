@@ -48,7 +48,6 @@ const submitVGSCollectForm = () => {
     if (status >= 200 && status <= 300) {
       // Successful response
       displayMessage('Payment successful! Your payment has been processed.');
-      displayPaymentCompleteMessage();
     } else if (!status) {
       // Network Error occurred
       displayMessage('Network error occurred. Please try again later.');
