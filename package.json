@@ -4,7 +4,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "proxy": "export NODE_EXTRA_CA_CERTS && node server.js"
+    "proxy": "export NODE_EXTRA_CA_CERTS=$(pwd)/cert.pem && node server.js"
   },
   "dependencies": {
     "axios": "^0.21.1",
