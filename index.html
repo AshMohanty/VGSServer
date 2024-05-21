@@ -1,60 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Server Status</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-        }
-        .container {
-            text-align: center;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .status {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <title>VGS Collect Payment Info Example</title>
+  <script nonce="static-nonce" src="https://js.verygoodvault.com/vgs-collect/2.18.0/vgs-collect.js"></script>
+  <script src="./form.js" defer></script>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-    <div class="container">
-        <div class="status">Checking server status...</div>
-        <div class="events"></div>
+  <div class="container">
+    <div class="content-box">
+      <div class="logo-container">
+        <img src="Bobs Burgers.png" alt="Burger Logo" class="burger-logo">
+      </div>
+      <form id="vgs-collect-form">
+        <div class="single-line-form">
+          <div id="cc-number" class="form-field"></div>
+          <div id="cc-expiration-date" class="form-field"></div>
+          <div id="cc-cvc" class="form-field"></div>
+        </div>
+        <button type="submit">Submit Payment</button>
+        <div id="payment-complete-message" class="hidden">Payment Complete</div>
+        <div id="message" class="message hidden"></div>
+      </form>
     </div>
-    <script>
-        async function checkStatus() {
-            try {
-                const response = await fetch('/status');
-                const statusText = await response.text();
-                document.querySelector('.status').textContent = statusText;
-            } catch (error) {
-                document.querySelector('.status').textContent = 'Error checking server status';
-            }
-        }
-
-        function listenForEvents() {
-            const eventSource = new EventSource('/events');
-            eventSource.onmessage = function(event) {
-                const eventsDiv = document.querySelector('.events');
-                const eventData = JSON.parse(event.data);
-                const eventElement = document.createElement('div');
-                eventElement.textContent = `Received payment data: ${JSON.stringify(eventData)}`;
-                eventsDiv.appendChild(eventElement);
-            };
-        }
-
-        checkStatus();
-        listenForEvents();
-    </script>
+  </div>
 </body>
 </html>
