@@ -44,73 +44,66 @@ const cardExpDate = vgsForm.field('#cc-expiration-date', {
 });
 
 const submitVGSCollectForm = () => {
-  vgsForm.submit('/post', {}, (status, data) => {
-    if (status >= 200 && status <= 300) {
-      // Successful response
-      displayMessage('Payment successful! Your payment has been processed.');
-    } else if (!status) {
-      // Network Error occurred
-      displayMessage('Network error occurred. Please try again later.');
-    } else {
-      // Server Error
-      displayMessage('Server error occurred. Please try again later.');
-    }
-  }, (validationError) => {
-    // Form validation error
-    displayMessage('Form validation error. Please check your inputs and try again.');
+  return new Promise((resolve, reject) => {
+    vgsForm.submit('/post', {}, (status, data) => {
+      if (status >= 200 && status <= 300) {
+        resolve('Tokenization successful!');
+      } else if (!status) {
+        reject('Network error occurred. Please try again later.');
+      } else {
+        reject('Server error occurred. Please try again later.');
+      }
+    }, (validationError) => {
+      reject('Form validation error. Please check your inputs and try again.');
+    });
   });
 }
 
-document.getElementById('vgs-collect-form').addEventListener('submit', (e) => {
+document.getElementById('vgs-collect-form').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  // Obtain the tokenized card data
-  const tokenizedCardData = {
-    card_number: cardNumber.value,
-    card_cvc: cardSecurityCode.value,
-    card_exp: cardExpDate.value
-  };
+  try {
+    await submitVGSCollectForm();
 
-  // Send tokenized card data to the server
-  fetch('https://vgs-server.vercel.app/process-payment', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(tokenizedCardData)
-  })
-  .then(response => {
+    // Obtain the tokenized card data
+    const tokenizedCardData = {
+      card_number: cardNumber.value,
+      card_cvc: cardSecurityCode.value,
+      card_exp: cardExpDate.value
+    };
+
+    // Send tokenized card data to the server
+    const response = await fetch('https://vgs-server.vercel.app/process-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(tokenizedCardData)
+    });
+
     if (response.ok) {
-      // Server responded with success
-      return response.json();
+      const data = await response.json();
+      if (data.success) {
+        // Payment was successful
+        displayMessage('Payment successful! Your payment has been processed.');
+        displayPaymentCompleteMessage();
+      } else {
+        // Payment failed
+        let errorMessage = 'Payment failed. Please try again later.';
+        if (data.error === 'invalid_card_number') {
+          errorMessage = 'Invalid credit card number. Please check and try again.';
+        } else if (data.error === 'authentication_failed') {
+          errorMessage = 'Stripe authentication failed. Please try again later.';
+        }
+        throw new Error(errorMessage);
+      }
     } else {
-      // Server responded with error
       throw new Error('Server error occurred.');
     }
-  })
-  .then(data => {
-    if (data.success) {
-      // Payment was successful
-      displayMessage('Payment successful! Your payment has been processed.');
-      displayPaymentCompleteMessage();
-    } else {
-      // Payment failed
-      let errorMessage = 'Payment failed. Please try again later.';
-      if (data.error === 'invalid_card_number') {
-        errorMessage = 'Invalid credit card number. Please check and try again.';
-      } else if (data.error === 'authentication_failed') {
-        errorMessage = 'Stripe authentication failed. Please try again later.';
-      }
-      throw new Error(errorMessage);
-    }
-  })
-  .catch(error => {
+  } catch (error) {
     // Network error occurred or payment failed
     displayMessage(error.message || 'Network error occurred. Please try again later.');
-  });
-
-  // Submit the VGS form
-  submitVGSCollectForm();
+  }
 });
 
 function displayMessage(message) {
