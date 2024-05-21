@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "proxy": "export NODE_EXTRA_CA_CERTS=cert.pem && node server.js"
   },
   "dependencies": {
     "axios": "^0.21.1",
