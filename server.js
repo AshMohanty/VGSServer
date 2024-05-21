@@ -1,3 +1,4 @@
+// Set the NODE_EXTRA_CA_CERTS environment variable to the path of the cert.pem file
 process.env.NODE_EXTRA_CA_CERTS = './cert.pem';
 
 // Import necessary modules
@@ -104,6 +105,10 @@ app.get('/events', (req, res) => {
     req.on('close', () => {
         eventEmitter.removeListener('payment', listener);
     });
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
