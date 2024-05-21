@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const tunnel = require('tunnel');
-const qs = require('qs');
+const fs = require('fs');
 const events = require('events');
 const eventEmitter = new events.EventEmitter();
 
@@ -23,13 +23,16 @@ const {
 function getProxyAgent() {
     const vgs_outbound_url = `${OUTBOUND_ROUTE_ID}.${VGS_VAULT_ID}.sandbox.verygoodproxy.com`;
     console.log(`Sending request through outbound Route: ${vgs_outbound_url}`);
+
+    const tlsCert = fs.readFileSync('path/to/cert.pem'); // Adjust the path to your cert file
+
     return tunnel.httpsOverHttps({
         proxy: {
             host: vgs_outbound_url,
             port: 8443,
-            proxyAuth: `${VGS_USERNAME}:${VGS_PASSWORD}`
+            proxyAuth: `${VGS_USERNAME}:${VGS_PASSWORD}`,
+            ca: tlsCert, // Add the certificate to the proxy configuration
         },
-        rejectUnauthorized: false  // Add this line to disable SSL certificate validation
     });
 }
 
@@ -45,9 +48,6 @@ async function postStripePayment(creditCardInfo) {
             'authorization': `Basic ${base64Auth}`,
         },
         httpsAgent: agent,
-        validateStatus: function (status) {
-            return status >= 200 && status < 300; // Resolve only if the status code is less than 300
-        }
     });
 
     try {
@@ -70,7 +70,8 @@ async function postStripePayment(creditCardInfo) {
 
         return pi_response.data;
     } catch (error) {
-        throw new Error(error.response ? error.response.data : error.message);
+        console.error('Error processing payment:', error);
+        throw error;
     }
 }
 
