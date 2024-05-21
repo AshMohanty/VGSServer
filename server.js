@@ -4,6 +4,7 @@ const axios = require('axios');
 const tunnel = require('tunnel');
 const fs = require('fs');
 const events = require('events');
+const path = require('path'); // Add this line to use path module
 const eventEmitter = new events.EventEmitter();
 
 const app = express();
@@ -24,7 +25,8 @@ function getProxyAgent() {
     const vgs_outbound_url = `${OUTBOUND_ROUTE_ID}.${VGS_VAULT_ID}.sandbox.verygoodproxy.com`;
     console.log(`Sending request through outbound Route: ${vgs_outbound_url}`);
 
-    const tlsCert = fs.readFileSync('/cert.pem'); // Adjust the path to your cert file
+    const tlsCertPath = path.resolve(__dirname, 'cert.pem'); // Adjust the path if necessary
+    const tlsCert = fs.readFileSync(tlsCertPath); // Read the cert file from the correct path
 
     return tunnel.httpsOverHttps({
         proxy: {
