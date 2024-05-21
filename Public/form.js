@@ -83,16 +83,25 @@ document.getElementById('vgs-collect-form').addEventListener('submit', (e) => {
   .then(response => {
     if (response.ok) {
       // Server responded with success
+      return response.json();
+    } else {
+      // Server responded with error
+      throw new Error('Server error occurred.');
+    }
+  })
+  .then(data => {
+    if (data.success) {
+      // Payment was successful
       displayMessage('Payment successful! Your payment has been processed.');
       displayPaymentCompleteMessage();
     } else {
-      // Server responded with error
-      displayMessage('Server error occurred. Please try again later.');
+      // Payment failed
+      throw new Error(data.error);
     }
   })
   .catch(error => {
-    // Network error occurred
-    displayMessage('Network error occurred. Please try again later.');
+    // Network error occurred or payment failed
+    displayMessage(error.message || 'Network error occurred. Please try again later.');
   });
 
   // Submit the VGS form
