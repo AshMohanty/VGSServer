@@ -1,11 +1,17 @@
+// Set the NODE_EXTRA_CA_CERTS environment variable to the path of the cert.pem file
+process.env.NODE_EXTRA_CA_CERTS = './cert.pem';
+
+// Import necessary modules
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const tunnel = require('tunnel');
 const qs = require('qs');
 const events = require('events');
+
 const eventEmitter = new events.EventEmitter();
 
+// Create an Express application
 const app = express();
 const port = process.env.PORT || 3000;
 
