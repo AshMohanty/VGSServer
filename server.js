@@ -1,49 +1,24 @@
-const qs = require('qs');
-const express = require('express');
-const bodyParser = require('body-parser');
-const axios = require('axios');
-const tunnel = require('tunnel');
-const fs = require('fs');
-const events = require('events');
-const path = require('path'); // Add this line to use path module
-const eventEmitter = new events.EventEmitter();
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-const {
-    VGS_VAULT_ID,
-    VGS_USERNAME,
-    VGS_PASSWORD,
-    STRIPE_KEY,
-    OUTBOUND_ROUTE_ID
-} = process.env;
+console.log(`Outbound route certificate is stored at this path: ${process.env['NODE_EXTRA_CA_CERTS']}`);
 
 function getProxyAgent() {
-    const vgs_outbound_url = `${OUTBOUND_ROUTE_ID}.${VGS_VAULT_ID}.sandbox.verygoodproxy.com`;
-    console.log(`Sending request through outbound Route: ${vgs_outbound_url}`);
-
-    const tlsCertPath = path.resolve(__dirname, 'cert.pem'); // Adjust the path if necessary
-    const tlsCert = fs.readFileSync(tlsCertPath); // Read the cert file from the correct path
-
+    const vgs_outbound_url = `${VGS_VAULT_ID}.sandbox.verygoodproxy.com`
+    console.log(`Sending request through outbund Route: ${vgs_outbound_url}`);
     return tunnel.httpsOverHttps({
         proxy: {
+            servername: vgs_outbound_url,
             host: vgs_outbound_url,
             port: 8443,
-            proxyAuth: `${VGS_USERNAME}:${VGS_PASSWORD}`,
-            ca: tlsCert, // Add the certificate to the proxy configuration
+            proxyAuth: `${VGS_USERNAME}:${VGS_PASSWORD}`
         },
     });
 }
 
 async function postStripePayment(creditCardInfo) {
     let agent = getProxyAgent();
-    let expiry = creditCardInfo['card_exp'].split('/');
+    let expiry = creditCardInfo['card-expiration-date'].split('/')
 
-    let base64Auth = Buffer.from(`${STRIPE_KEY}:`).toString('base64');
+    let buff = new Buffer(STRIPE_KEY+":");
+    let base64Auth = buff.toString('base64');
 
     const instance = axios.create({
         baseURL: 'https://api.stripe.com',
@@ -53,64 +28,22 @@ async function postStripePayment(creditCardInfo) {
         httpsAgent: agent,
     });
 
-    try {
-        let pm_response = await instance.post('/v1/payment_methods', qs.stringify({
-            type: 'card',
-            card: {
-                number: creditCardInfo['card_number'],
-                cvc: creditCardInfo['card_cvc'],
-                exp_month: expiry[0].trim(),
-                exp_year: expiry[1].trim()
-            }
-        }));
+    let pm_response = await instance.post('/v1/payment_methods', qs.stringify({
+        type: 'card',
+        card: {
+            number: creditCardInfo['card-number'],
+            cvc: creditCardInfo['card-security-code'],
+            exp_month: expiry[0].trim(),
+            exp_year: expiry[1].trim()
+        }
+    }));
+    console.log(pm_response.data)
 
-        let pi_response = await instance.post('/v1/payment_intents', qs.stringify({
-            amount: 1000, // Amount in cents
-            currency: 'usd',
-            payment_method: pm_response.data.id,
-            confirm: true
-        }));
-
-        return pi_response.data;
-    } catch (error) {
-        console.error('Error processing payment:', error);
-        throw error;
-    }
-}
-
-app.post('/process-payment', async (req, res) => {
-    try {
-        const creditCardInfo = req.body;
-        eventEmitter.emit('payment', creditCardInfo);
-        const paymentResult = await postStripePayment(creditCardInfo);
-        res.json({ success: true, paymentResult });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
-
-app.get('/status', (req, res) => {
-    res.send('Server is listening and ready to process payments.');
-});
-
-app.get('/events', (req, res) => {
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    const listener = (data) => {
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
-    };
-
-    eventEmitter.on('payment', listener);
-
-    req.on('close', () => {
-        eventEmitter.removeListener('payment', listener);
-    });
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
-
-module.exports = app;
+    let pi_response = await instance.post('/v1/payment_intents', qs.stringify({
+        amount: 100,
+        currency: 'usd',
+        payment_method: pm_response.data.id,
+        confirm: true
+    }));
+    console.log(pi_response.data);
+    return pi_response.data;
