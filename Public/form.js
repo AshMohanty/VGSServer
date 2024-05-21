@@ -73,7 +73,7 @@ document.getElementById('vgs-collect-form').addEventListener('submit', async (e)
     };
 
     // Send tokenized card data to the server
-    const response = await fetch('https://vgs-server.vercel.app/process-payment', {
+    const response = await fetch('https://vgs-server.vercel.app/process-payment', { // Your server name/process-payment here
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
