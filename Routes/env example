@@ -1,0 +1,6 @@
+VGS_VAULT_ID=your-vgs-vault-id
+VGS_USERNAME=your-vgs-username
+VGS_PASSWORD=your-vgs-password
+STRIPE_KEY='sk_test_51Lrs6CK6opjUgeSmFHReX14eBMcbofCJrUOisGTC7ASpkfFMqD6Eysbs83qBC12YZErV3nv1Pg4UTy9WRhPRVUpQ00o7cUrV8I'
+OUTBOUND_ROUTE_ID=your-outbound-route-id
+NODE_EXTRA_CA_CERTS = './cert.pem' 
