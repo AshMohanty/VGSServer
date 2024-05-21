@@ -4,6 +4,7 @@ const axios = require('axios');
 const tunnel = require('tunnel');
 const qs = require('qs');
 const events = require('events');
+const eventEmitter = new events.EventEmitter();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -68,6 +69,7 @@ async function postStripePayment(creditCardInfo) {
 app.post('/process-payment', async (req, res) => {
     try {
         const creditCardInfo = req.body;
+        eventEmitter.emit('payment', creditCardInfo);
         const paymentResult = await postStripePayment(creditCardInfo);
         res.json({ success: true, paymentResult });
     } catch (error) {
