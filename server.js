@@ -1,4 +1,3 @@
-// Set the NODE_EXTRA_CA_CERTS environment variable to the path of the cert.pem file
 process.env.NODE_EXTRA_CA_CERTS = './cert.pem';
 
 // Import necessary modules
@@ -8,6 +7,7 @@ const axios = require('axios');
 const tunnel = require('tunnel');
 const qs = require('qs');
 const events = require('events');
+const path = require('path'); // Import path module
 
 const eventEmitter = new events.EventEmitter();
 
@@ -17,6 +17,9 @@ const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Serve static files from the same directory
+app.use(express.static(path.join(__dirname, '/')));
 
 const {
     VGS_VAULT_ID,
