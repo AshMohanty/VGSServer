@@ -24,7 +24,7 @@ function getProxyAgent() {
     const vgs_outbound_url = `${OUTBOUND_ROUTE_ID}.${VGS_VAULT_ID}.sandbox.verygoodproxy.com`;
     console.log(`Sending request through outbound Route: ${vgs_outbound_url}`);
 
-    const tlsCert = fs.readFileSync('cert.pem'); // Adjust the path to your cert file
+    const tlsCert = fs.readFileSync('/cert.pem'); // Adjust the path to your cert file
 
     return tunnel.httpsOverHttps({
         proxy: {
