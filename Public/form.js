@@ -1,5 +1,5 @@
 const vgsForm = window.VGSCollect.create(
-  'tnt3qmfciiv',
+  'tnt3qmfciiv', // your Vault ID here 
   'sandbox',
   (state) => {}
 ).setRouteId('431f97a0-cdba-48af-92f7-4aee1d7a82bd'); // your inbound route id here
